@@ -1,0 +1,21 @@
+{
+    "name": "class/route",
+    "description": "Class route para gerenciamento de rotas",
+    "minimum-stability": "stable",
+    "authors": [
+        {
+            "name": "Yuri Sales de Oliveira",
+            "email": "yuri_oli@hotmail.com",
+            "role": "Programador",
+            "homepage": "https://www.facebook.com/profile.php?id=100052262689312"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Router\\": "src"
+        }
+    },
+    "require": {
+        "php": ">=7.4"
+    }
+}
