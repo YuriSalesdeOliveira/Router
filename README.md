@@ -20,7 +20,8 @@ Options -Indexes
 ```
 #### Rotas
 
-```routes
+- Carregando o autoload, e iniciando a classe com nossa url base
+```
 <?php
 
 require(dirname(__DIR__) . '/vendor/autoload.php');
@@ -28,21 +29,26 @@ require(dirname(__DIR__) . '/vendor/autoload.php');
 use Source\Router\Router;
 
 $router = new Router(root_url);
+```
 
-// Exemplo de rotas simples
+- Exemplo de rotas simples
 
+```
 $router->get("/home", "WebController:home", 'web.home');
 $router->post("/registrar", "WebController:register", 'web.register');
+```
 
-// Exemplo de rotas que possuem parametros dinâmicos
+- Exemplo de rotas que possuem parametros dinâmicos
 
+```
 $router->get("/usuario/{user}", "WebController:showUser", 'web.showUser');
 $router->post("/usuario/deletar/{user}", "WebController:deleteUser", 'web.deleteUser');
+```
 
-// Esse método faz a classe trabalhar
+- Esse método faz a classe trabalhar
 
+```
 $router->dispatch();
-
 ```
 
 
