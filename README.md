@@ -63,7 +63,7 @@ dessa forma pode-se ter acesso a classe router dentro dos controllers.
 A classe router também se encarrega de passar os dados de get e post para os métodos de rotas get que possuem
 parametros dinâmicos ou rotas post que automaticamente precisam dos dados enviados de formulários.
 ```
-class Name
+class WebController
 {
     protected Router $router;
     
