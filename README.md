@@ -58,7 +58,27 @@ $router->get("/", function ($data) {});
 
 $router->post("/", function ($data) {});
 ```
-A classe router é automaticamente passada no construtor para o controller executado através dela,
+- A classe router é automaticamente passada no construtor para o controller executado através dela,
 dessa forma pode-se ter acesso a classe router dentro dos controllers.
 A classe router também se encarrega de passar os dados de get e post para os métodos de rotas get que possuem
 parametros dinâmicos ou rotas post que automaticamente precisam dos dados enviados de formulários.
+```
+class Name
+{
+    protected Router $router;
+    
+    public function __construct($router)
+    {
+        $this->router = $router;
+    }
+
+    public function deleteUser($data): void
+    {
+       $user_id = $data['user'];
+       
+       User::find(['id' => $user_id])->first()->delete();
+       
+       $this->router->redirect('web.home');
+    }
+}
+```
