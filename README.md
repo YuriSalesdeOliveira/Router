@@ -2,9 +2,9 @@
 
 Um simples gerenciador de rotas
 
-### Como usar
+## Como usar
 
-#### Apache
+### Apache
 
 ```apache
 <IfModule mod_rewrite.c>
@@ -18,9 +18,9 @@ RewriteRule . / [L]
 Options -Indexes
 </IfModule>
 ```
-#### Rotas
+### Rotas
 
-- Carregando o autoload, e iniciando a classe com nossa url base
+- Carregando o autoload e iniciando a classe com nossa url base
 ```
 <?php
 
@@ -51,4 +51,10 @@ $router->post("/usuario/deletar/{user}", "WebController:deleteUser", 'web.delete
 $router->dispatch();
 ```
 
+- Também podemos usar callables
 
+```
+$router->get("/", function ($data) {});
+
+$router->post("/", function ($data) {});
+```
