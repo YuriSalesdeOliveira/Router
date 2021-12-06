@@ -12,7 +12,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Router\\": "src"
+            "Src\\": "src"
         }
     },
     "require": {
