@@ -45,7 +45,7 @@ $router->get('/home', 'WebController:home', 'web.home');
 $router->post('/registrar', 'WebController:register', 'web.register');
 ```
 
-- Exemplo de rotas que possuem parametros dinâmicos
+- Exemplo de rotas que possuem parâmetros dinâmicos
 
 ```
 $router->get('/usuario/{user}', 'WebController:showUser', 'web.showUser');
@@ -76,7 +76,7 @@ $router->post('/', function ($data) {});
 - A classe router é automaticamente passada no construtor para o controller executado através dela,
 dessa forma pode-se ter acesso a classe router dentro dos controllers.
 A classe router também se encarrega de passar os dados de get e post para os métodos de rotas get que possuem
-parametros dinâmicos ou rotas post que automaticamente precisam dos dados enviados de formulários.
+parâmetros dinâmicos ou rotas post que automaticamente precisam dos dados enviados de formulários.
 ```
 class WebController
 {
