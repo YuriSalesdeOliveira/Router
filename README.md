@@ -1,7 +1,7 @@
 # Router
 
 Esse projeto é um simples gerenciador de rotas que fiz para entender o funcionamento de um gerenciador de rotas.
-Tive como base o coffeecode/router que é um projeto profissional que faço uso em outros projetos postados aqui mesmo
+Tive como base o coffeecode/router que é um projeto profissional que uso em outros projetos postados aqui mesmo
 no github.
 
 ## Como usar
