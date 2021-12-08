@@ -98,3 +98,7 @@ class WebController
     }
 }
 ```
+
+### Requisitos
+
+- PHP 7.4 ou superior
