@@ -77,6 +77,7 @@ $router->post('/', function ($data) {});
 dessa forma pode-se ter acesso a classe router dentro dos controllers.
 A classe router também se encarrega de passar os dados de get e post para os métodos de rotas get que possuem
 parâmetros dinâmicos ou rotas post que automaticamente precisam dos dados enviados de formulários.
+
 ```php
 class WebController
 {

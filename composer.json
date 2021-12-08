@@ -1,18 +1,18 @@
 {
-    "name": "class/route",
-    "description": "Class route para gerenciamento de rotas",
+    "name": "yuri-oliveira/router",
+    "description": "Class router para gerenciamento de rotas",
     "minimum-stability": "stable",
+    "license": "MIT",
     "authors": [
         {
             "name": "Yuri Sales de Oliveira",
             "email": "yuri_oli@hotmail.com",
-            "role": "Programador",
             "homepage": "https://www.facebook.com/profile.php?id=100052262689312"
         }
     ],
     "autoload": {
         "psr-4": {
-            "Src\\": "src"
+            "YuriOliveira\\Router\\": "src"
         }
     },
     "require": {
