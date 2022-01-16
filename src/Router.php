@@ -272,7 +272,9 @@ class Router
                 Redirect::redirect(to: $url);
             }
         }
-
+        // Preciso fazer a validação para saber se o usuário está informando
+        // uma url completa ao invés de informar o nome da rota ou um path que
+        // utilizaria a base url
         $url = $this->base_url['url'] . "/{$name_or_path}";
 
         Redirect::redirect(to: $url);
