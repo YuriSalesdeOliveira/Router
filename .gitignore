@@ -1,1 +1,4 @@
-vendor/*
+vendor
+.htaccess
+index.php
+src/Controllers

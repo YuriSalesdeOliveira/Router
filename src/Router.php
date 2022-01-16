@@ -2,84 +2,100 @@
 
 namespace YuriOliveira\Router;
 
-use Exception;
-
 class Router
 {
-    private $uri;
-    private $method;
-    private $root;
-    private $namespace;
-    private $group;
-    private $routes;
-    private $route;
-    private $data;
-    private $error;
+    protected array $base_url;
+    protected array $uri;
+    protected string $namespace;
+    protected string|null $group;
+    protected array $routes;
+    protected array $route;
+    protected array $data;
+    protected int $error;
 
-    private const NOT_FOUND = 404;
-    private const METHOD_NOT_ALLOWED = 405;
+    protected RequestInterface $request;
+    protected ResponseInterface $response;
 
-    public function __construct(string $root)
+    const BAD_REQUEST = 400;
+    const NOT_FOUND = 404;
+    const METHOD_NOT_ALLOWED = 405;
+    const NOT_IMPLEMENTED = 501;
+    const OK = 200;
+
+    public function __construct(RequestInterface $request, ResponseInterface $response, string $base_url)
     {
+        $this->request = $request;
+        $this->response = $response;
+
+        $this->baseUrl($base_url);
         $this->uri();
-
-        $this->method();
-
-        $this->root = $root;
     }
 
-    private function uri(): void
+    protected function baseUrl(string $base_url): void
     {
-        $uri = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
-
-        $this->uri = array_values(array_filter(explode('/', $uri)));
+        $this->base_url = [
+            'url' => $base_url,
+            'uri' => $this->normalizeUri($base_url)
+        ];
     }
 
-    private function method(): void
+    protected function uri(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'GET' || $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $uri = $this->normalizeUri($this->request->uri());
 
-            $this->method = $_SERVER['REQUEST_METHOD'];
+        foreach ($this->base_url['uri'] as $base_url_path_part) {
+
+            $index = array_search($base_url_path_part, $uri);
+
+            unset($uri[$index]);
         }
+
+        $this->uri = [
+            'uri' => $this->request->uri(),
+            'uri_nomalized' => array_values($uri)
+        ];
     }
 
-    public function namespace($namespace)
+    protected function normalizeUri(string $uri): array
+    {
+        $uri = urldecode(parse_url($uri, PHP_URL_PATH));
+        return array_values(array_filter(explode('/', $uri)));
+    }
+
+    public function namespace(string|null $namespace = null): static
     {
         $this->namespace = $namespace ? ucwords($namespace) : null;
+
+        return $this;
     }
 
-    public function group(?string $group): Router
+    public function group(string|null $group): static
     {
         $this->group = $group;
 
         return $this;
     }
 
-    public function post(string $route, $handler, string $name): Router
+    public function post(string $route, $handler, string $name): static
     {
         $this->addRoute('POST', $route, $handler, $name);
 
         return $this;
     }
 
-    public function get(string $route, $handler, string $name): Router
+    public function get(string $route, $handler, string $name): static
     {
         $this->addRoute('GET', $route, $handler, $name);
-
+        
         return $this;
     }
 
-    private function addRoute(string $method, string $route, $handler, string $name): void
+    protected function addRoute(string $method, string $route,
+        callable|string $handler, string $name): void
     {
-        if ($this->group) {
-
-            if ($route === '/') {
-
-                $route = $this->group;
-            } else {
-
-                $route = $this->group . $route;
-            }
+        if (!empty($this->group))
+        {
+            $route = $route === '/' ? $this->group : $this->group . $route;
         }
 
         $route = array_values(array_filter(explode('/', $route)));
@@ -92,44 +108,49 @@ class Router
         ];
     }
 
-    private function handler($handler)
+    protected function handler(callable|string $handler): callable|string
     {
-        if (is_string($handler)) {
+        return is_string($handler) ? "{$this->namespace}\\" . explode(':', $handler)[0] : $handler;
+    }
 
-            return "{$this->namespace}\\" . explode(':', $handler)[0];
+    protected function action(callable|string $handler): string|null
+    {
+       return is_string($handler) ? explode(':', $handler)[1] : null;
+    }
 
-        } elseif (is_callable($handler)) {
+    protected function addData(array $data)
+    {
+        foreach ($data as $key => $value)
+        {
+            if (strpos(':', $key[0]) === 0) { $key = substr($key, 1); }
 
-            return $handler;
+            $this->data[$key] = $value;
         }
-
-        throw new Exception('O handler deve ser um callable
-            ou uma string que faz referencia a um controller.');
     }
 
-    private function action($handler): ?string
+    protected function data()
     {
-       return is_callable($handler) ? null : explode(':', $handler)[1];
+        $data = $this->request->files() + $this->request->get() + $this->request->post();
+
+        return !empty($this->data) ? $this->data + $data : $data;
     }
 
-    private function findRoute(): bool
+    protected function findRoute(): bool
     {
-        if (isset($this->routes[$this->method])) {
-
-            foreach ($this->routes[$this->method] as $route) {
-
-                if (count($this->uri) === count($route['route'])) {
-
-                    $difference = array_diff($route['route'], $this->uri);
-
-                    $indexes = $this->getIndex(':', $difference);
-
-                    if ($indexes) {
-
-                        $route = $this->normalizeRoute($route, $indexes);
-                    }
-
-                    if ($route['route'] === $this->uri) {
+        if (isset($this->routes[$this->request->method()]))
+        {
+            foreach ($this->routes[$this->request->method()] as $route)
+            {
+                if (count($this->uri['uri_nomalized']) === count($route['route']))
+                {    
+                    [$route['route'], $changes] = $this->normalizeRouteUsingUri(
+                        $route['route'],
+                        $this->uri['uri_nomalized']
+                    );
+                    
+                    if ($route['route'] === $this->uri['uri_nomalized'])
+                    {
+                        $this->addData($changes);
 
                         $this->route = $route;
 
@@ -144,60 +165,32 @@ class Router
         return false;
     }
 
-    private function getIndex(string $find, array $difference): ?array
+    protected function normalizeRouteUsingUri(array $route, array $uri): array
     {
-        foreach ($difference as $index => $value) {
+        $changes = [];
 
-            if (strpos($find, $value[0]) === 0) {
+        foreach ($route as $index => $route_part)
+        {
+            if (strpos(':', $route_part[0]) === 0)
+            {
+                $changes[$route[$index]] = $uri[$index];
 
-                $indexes[] = $index;
+                $route[$index] = $uri[$index];
             }
         }
 
-        return $indexes ?? null;
-    }
-
-    private function normalizeRoute(array $route, array $indexes): array
-    {
-        $this->setData($route, $indexes);
-
-        foreach ($indexes as $index) {
-
-            $route['route'][$index] = $this->uri[$index];
-        }
-
-        return $route;
-    }
-
-    private function setData(array $route, array $indexes): void
-    {
-        foreach ($indexes as $index) {
-
-            $key = substr($route['route'][$index], 1, -1);
-
-            $parameters[$key] = $this->uri[$index];
-        }
-
-        $this->data = $parameters ?? null;
-    }
-
-    private function getData(): ?array
-    {
-        if ($this->method === 'POST') {
-
-            $data = ['_FILES' => $_FILES] + ['_POST' => $_POST] + ($this->data ?? []);
-
-            return $data;
-        }
-
-        return $this->data ?? null;
+        return [$route, $changes];
     }
 
     private function executeRoute(): bool
     {
         if (is_callable($this->route['handler'])) {
 
-            call_user_func($this->route['handler'], $this->getData());
+            call_user_func($this->route['handler'],
+                $this,
+                $this->data(),
+                $this->response
+            );
 
             return true;
         }
@@ -211,20 +204,18 @@ class Router
 
             if (method_exists($controller, $controller_method)) {
 
-                $controller->$controller_method($this->getData());
+                $controller->$controller_method(
+                    $this->data(),
+                    $this->response
+                );
 
                 return true;
             }
         }
 
-        $this->error = self::METHOD_NOT_ALLOWED;
+        $this->error = static::METHOD_NOT_ALLOWED;
 
         return false;
-    }
-
-    public function error(): ?string
-    {
-        return $this->error;
     }
 
     public function dispatch(): bool
@@ -237,26 +228,58 @@ class Router
         return false;
     }
 
-    public function redirect(string $name_or_path): void
+    public function route(string $name, array $parameters = []): string
+    {
+        foreach ($this->routes['GET'] as $route) {
+
+            if (isset($route['name']) && $route['name'] === $name) {
+                
+                $route = $this->normalizeRouteUsingParameters($route['route'], $parameters);
+
+                $url = $this->base_url['url'] . "/{$route}";
+
+                return $url;
+            }
+        }
+    }
+
+    protected function normalizeRouteUsingParameters(array $route, array $parameters): string
+    {
+        foreach ($parameters as $parameter => $value)
+        {
+            foreach ($route as $index => $route_part)
+            {
+                if (":{$parameter}" === $route_part)
+                {
+                    $route[$index] = $value;
+                }
+            }
+        }
+        
+        return implode('/', $route);
+    }
+
+    public function redirect(string $name_or_path, array $parameters = [])
     {
         foreach ($this->routes['GET'] as $route) {
 
             if (isset($route['name']) && $route['name'] === $name_or_path) {
 
-                $route = implode('/', $route['route']);
+                $route = $this->normalizeRouteUsingParameters($route['route'], $parameters);
 
-                $path = $this->root . "/{$route}";
+                $url = $this->base_url['url'] . "/{$route}";
 
-                header("Location: {$path}");
-
-                exit();
+                Redirect::redirect(to: $url);
             }
         }
 
-        $path = $this->root . "/{$name_or_path}";
+        $url = $this->base_url['url'] . "/{$name_or_path}";
 
-        header("Location: {$path}");
+        Redirect::redirect(to: $url);
+    }
 
-        exit();
+    public function error(): string|null
+    {
+        return isset($this->error) ? $this->error : null;
     }
 }
