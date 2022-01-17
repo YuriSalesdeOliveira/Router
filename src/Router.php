@@ -228,19 +228,24 @@ class Router
         return false;
     }
 
-    public function route(string $name, array $parameters = []): string
+    public function route(string $name, array $parameters = []): string|false
     {
-        foreach ($this->routes['GET'] as $route) {
-
-            if (isset($route['name']) && $route['name'] === $name) {
-                
-                $route = $this->normalizeRouteUsingParameters($route['route'], $parameters);
-
-                $url = $this->base_url['url'] . "/{$route}";
-
-                return $url;
+        foreach ($this->route as $method)
+        {
+            foreach ($method as $route)
+            {
+                if (isset($route['name']) && $route['name'] === $name) {
+                    
+                    $route = $this->normalizeRouteUsingParameters($route['route'], $parameters);
+    
+                    $url = $this->base_url['url'] . "/{$route}";
+    
+                    return $url;
+                }
             }
         }
+
+        return false;
     }
 
     protected function normalizeRouteUsingParameters(array $route, array $parameters): string
@@ -259,12 +264,14 @@ class Router
         return implode('/', $route);
     }
 
-    public function redirect(string $name_or_path, array $parameters = [])
+    public function redirect(string $name_path_url, array $parameters = [])
     {
-        foreach ($this->routes['GET'] as $route) {
+        if (filter_var($name_path_url, FILTER_VALIDATE_URL)) { Redirect::redirect(to: $name_path_url); }
 
-            if (isset($route['name']) && $route['name'] === $name_or_path) {
-
+        foreach ($this->routes['GET'] as $route)
+        {
+            if (isset($route['name']) && $route['name'] === $name_path_url)
+            {
                 $route = $this->normalizeRouteUsingParameters($route['route'], $parameters);
 
                 $url = $this->base_url['url'] . "/{$route}";
@@ -272,10 +279,8 @@ class Router
                 Redirect::redirect(to: $url);
             }
         }
-        // Preciso fazer a validação para saber se o usuário está informando
-        // uma url completa ao invés de informar o nome da rota ou um path que
-        // utilizaria a base url
-        $url = $this->base_url['url'] . "/{$name_or_path}";
+        
+        $url = $this->base_url['url'] . "/{$name_path_url}";
 
         Redirect::redirect(to: $url);
     }
