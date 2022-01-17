@@ -114,12 +114,10 @@ class Router
     }
 
     protected function name(string $name): string
-    {
-        $name = strtolower($name);
-        
-        // validar name
+    {   
+        if (preg_match('/^[a-z-.]+$/', $name)) { return $name; }
 
-        return $name;
+        throw new Exception('O nome da rota deve conter apenas letras minúsculas e pontos.');
     }
 
     protected function handler(callable|string $handler): callable|string
@@ -136,7 +134,7 @@ class Router
     {
         foreach ($data as $key => $value)
         {
-            if (strpos(':', $key[0]) === 0) { $key = substr($key, 1); }
+            if (str_contains($key, ':')) { $key = substr($key, 1); }
 
             $this->data[$key] = $value;
         }
@@ -185,7 +183,7 @@ class Router
 
         foreach ($route as $index => $route_part)
         {
-            if (strpos(':', $route_part[0]) === 0)
+            if (str_contains($route_part, ':'))
             {
                 $changes[$route[$index]] = $uri[$index];
 
@@ -196,7 +194,7 @@ class Router
         return [$route, $changes];
     }
 
-    private function executeRoute(): bool
+    protected function executeRoute(): bool
     {
         if (is_callable($this->route['handler'])) {
 
