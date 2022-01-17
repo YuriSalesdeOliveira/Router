@@ -2,13 +2,18 @@
 
 namespace YuriOliveira\Router;
 
+use Exception;
+
 class Router
 {
     protected array $base_url;
     protected array $uri;
     protected string $namespace;
     protected string|null $group;
-    protected array $routes;
+    protected array $routes = [
+        'GET' => [],
+        'POST' => [],
+    ];
     protected array $route;
     protected array $data;
     protected int $error;
@@ -104,8 +109,17 @@ class Router
             'route' => $route,
             'handler' => $this->handler($handler),
             'action' => $this->action($handler),
-            'name' => $name
+            'name' => $this->name($name)
         ];
+    }
+
+    protected function name(string $name): string
+    {
+        $name = strtolower($name);
+        
+        // validar name
+
+        return $name;
     }
 
     protected function handler(callable|string $handler): callable|string
@@ -230,7 +244,7 @@ class Router
 
     public function route(string $name, array $parameters = []): string|false
     {
-        foreach ($this->route as $method)
+        foreach ($this->routes as $method)
         {
             foreach ($method as $route)
             {
@@ -257,32 +271,25 @@ class Router
                 if (":{$parameter}" === $route_part)
                 {
                     $route[$index] = $value;
-                }
+                }   
             }
         }
         
         return implode('/', $route);
     }
 
-    public function redirect(string $name_path_url, array $parameters = [])
+    public function redirect(string $route, array $parameters = [])
     {
-        if (filter_var($name_path_url, FILTER_VALIDATE_URL)) { Redirect::redirect(to: $name_path_url); }
+        if (filter_var($route, FILTER_VALIDATE_URL)) { Redirect::redirect(to: $route); }
 
-        foreach ($this->routes['GET'] as $route)
+        if (str_contains($route, '/'))
         {
-            if (isset($route['name']) && $route['name'] === $name_path_url)
-            {
-                $route = $this->normalizeRouteUsingParameters($route['route'], $parameters);
+            $route = $this->base_url['url'] . $route;
 
-                $url = $this->base_url['url'] . "/{$route}";
-
-                Redirect::redirect(to: $url);
-            }
+            Redirect::redirect(to: $route);
         }
-        
-        $url = $this->base_url['url'] . "/{$name_path_url}";
 
-        Redirect::redirect(to: $url);
+        if ($route = $this->route($route, $parameters)) { Redirect::redirect(to: $route); }
     }
 
     public function error(): string|null
