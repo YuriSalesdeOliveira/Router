@@ -1,6 +1,6 @@
 # Router
 
-Esse projeto é um simples gerenciador de rotas que fiz para entender o funcionamento de um gerenciador de rotas.
+Esse projeto é um simples componente de rotas PHP. Fiz esse projeto para entender o funcionamento de um gerenciador de rotas.
 Tive como base o coffeecode/router que é um projeto profissional que uso em outros projetos postados aqui mesmo
 no github.
 ## Instalação
