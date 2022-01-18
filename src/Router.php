@@ -6,8 +6,7 @@ use Exception;
 
 class Router
 {
-    protected array $base_url;
-    protected array $uri;
+    protected string $base_url;
     protected string $namespace;
     protected string|null $group;
     protected array $routes = [
@@ -31,40 +30,16 @@ class Router
     {
         $this->request = $request;
         $this->response = $response;
+        $this->base_url = $this->baseUrl($base_url);
 
-        $this->baseUrl($base_url);
-        $this->uri();
+        $this->request->normalizeUri($this->base_url);
     }
 
-    protected function baseUrl(string $base_url): void
+    protected function baseUrl(string $base_url): string
     {
-        $this->base_url = [
-            'url' => $base_url,
-            'uri' => $this->normalizeUri($base_url)
-        ];
-    }
+        if (filter_var($base_url, FILTER_VALIDATE_URL)) { return $base_url; }
 
-    protected function uri(): void
-    {
-        $uri = $this->normalizeUri($this->request->uri());
-
-        foreach ($this->base_url['uri'] as $base_url_path_part) {
-
-            $index = array_search($base_url_path_part, $uri);
-
-            unset($uri[$index]);
-        }
-
-        $this->uri = [
-            'uri' => $this->request->uri(),
-            'uri_nomalized' => array_values($uri)
-        ];
-    }
-
-    protected function normalizeUri(string $uri): array
-    {
-        $uri = urldecode(parse_url($uri, PHP_URL_PATH));
-        return array_values(array_filter(explode('/', $uri)));
+        throw new Exception('Informe uma URL válida.');
     }
 
     public function namespace(string|null $namespace = null): static
@@ -153,14 +128,14 @@ class Router
         {
             foreach ($this->routes[$this->request->method()] as $route)
             {
-                if (count($this->uri['uri_nomalized']) === count($route['route']))
+                if (count($this->request->uri()) === count($route['route']))
                 {    
                     [$route['route'], $changes] = $this->normalizeRouteUsingUri(
                         $route['route'],
-                        $this->uri['uri_nomalized']
+                        $this->request->uri()
                     );
                     
-                    if ($route['route'] === $this->uri['uri_nomalized'])
+                    if ($route['route'] === $this->request->uri())
                     {
                         $this->addData($changes);
 
@@ -223,9 +198,13 @@ class Router
 
                 return true;
             }
+
+            $this->error = self::METHOD_NOT_ALLOWED;
+
+            return false;
         }
 
-        $this->error = static::METHOD_NOT_ALLOWED;
+        $this->error = self::BAD_REQUEST;
 
         return false;
     }
@@ -250,7 +229,7 @@ class Router
                     
                     $route = $this->normalizeRouteUsingParameters($route['route'], $parameters);
     
-                    $url = $this->base_url['url'] . "/{$route}";
+                    $url = $this->base_url . "/{$route}";
     
                     return $url;
                 }
@@ -282,7 +261,7 @@ class Router
 
         if (str_contains($route, '/'))
         {
-            $route = $this->base_url['url'] . $route;
+            $route = $this->base_url . $route;
 
             Redirect::redirect(to: $route);
         }

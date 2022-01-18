@@ -6,7 +6,9 @@ interface RequestInterface
 {
     public function method(): string;
 
-    public function uri(): string;
+    public function uri(bool $normalized = true): string|array;
+
+    public function normalizeUri(string $uri_url): bool;
 
     public function files(): array;
 
