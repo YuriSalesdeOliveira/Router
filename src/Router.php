@@ -90,9 +90,9 @@ class Router
 
     protected function name(string $name): string
     {   
-        if (preg_match('/^[a-z-.]+$/', $name)) { return $name; }
+        if (preg_match('/^[a-zA-Z.]+$/', $name)) { return $name; }
 
-        throw new Exception('O nome da rota deve conter apenas letras minúsculas e pontos.');
+        throw new Exception('O nome da rota deve conter apenas letras e pontos.');
     }
 
     protected function handler(callable|string $handler): callable|string

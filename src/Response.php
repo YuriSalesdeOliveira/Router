@@ -56,16 +56,21 @@ class Response implements ResponseInterface
 
     public function setContentType(string $content_type): static
     {
-        if (!in_array($content_type, $this->allowed_content_types))
-        {
-            throw new Exception("Tipo de conteúdo {$content_type} não permitido.");
-        }
+        $this->allowedContentTypes($content_type);
 
         $this->content_type = $content_type;
 
         $this->addHeader('Content-Type', $content_type);
 
         return $this;
+    }
+
+    protected function allowedContentTypes($content_type)
+    {
+        if (!in_array($content_type, $this->allowed_content_types))
+        {
+            throw new Exception("Tipo de conteúdo {$content_type} não permitido.");
+        }
     }
 
     public function addHeader(string $key, string $value): static
