@@ -24,8 +24,7 @@ RewriteRule ^(.*)$ ./index.php [QSA,NC]
 ```
 ### Rotas
 
-A classe Router recebe como parametro duas outras classes,
-Resquest e Response além da url base do site.
+A classe Router recebe como parametro uma instância de Resquest, uma instância de Response e a url base do site.
 
 ```php
 <?php
@@ -64,7 +63,7 @@ $router->get('/home', 'WebController:home', 'web.home');
 $router->post('/registrar', 'WebController:register', 'web.register');
 ```
 
-Exemplo de rotas usando Closure. A classe router se encarrega de passar os dados de $_GET, $_POST e $_FILES para os métodos de rotas GET que possuem parâmetros dinâmicos ou rotas POST que automaticamente precisam dos dados enviados de formulários. Além disso os métodos também recebem uma instancia de Response e no caso das Closures os métodos recebem uma instancia de Router.
+Exemplo de rotas usando Closure. A classe router se encarrega de passar os dados de $_GET, $_POST e $_FILES para os métodos de rotas GET que possuem parâmetros dinâmicos ou rotas POST que automaticamente precisam dos dados enviados de formulários. Além disso os métodos também recebem uma instância de Response e no caso das Closures os métodos recebem uma instância de Router.
 
 ```php
 $router->get('/', function(Router $router, array $data, ResponseInterface $response){
@@ -135,7 +134,7 @@ if ($error = $router->error()) { $router->redirect('app.error', ['errorcode' => 
 
 ```
 
-A classe router é automaticamente passada no construtor para o controller, dessa forma pode-se ter acesso a classe router dentro dos controllers. A classe router também se encarrega de passar os dados de $_GET, $_POST e $_FILES para os métodos de rotas GET que possuem parâmetros dinâmicos ou rotas POST que automaticamente precisam dos dados enviados de formulários. Além disso os métodos também recebem uma instancia de Response.
+A classe router é automaticamente passada no construtor para o controller, dessa forma pode-se ter acesso a classe router dentro dos controllers. A classe router também se encarrega de passar os dados de $_GET, $_POST e $_FILES para os métodos de rotas GET que possuem parâmetros dinâmicos ou rotas POST que automaticamente precisam dos dados enviados de formulários. Além disso os métodos também recebem uma instância de Response.
 
 ```php
 class WebController
