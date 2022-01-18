@@ -24,7 +24,7 @@ RewriteRule ^(.*)$ ./index.php [QSA,NC]
 ```
 ### Rotas
 
-A classe Router recebe como parametro uma instância de Resquest, uma instância de Response e a url base do site.
+A classe Router recebe como parâmetro uma instância de Resquest, uma instância de Response e a url base do site.
 
 ```php
 <?php
@@ -116,8 +116,8 @@ um path ou uma url completa.
 
 ```php
 $router->redirect('web.home',);
-$router->redirect('app.error', ['errorcode' => $error]);
-$router->redirect('app.error', ['errorcode' => $error]);
+$router->redirect('/home');
+$router->redirect('http://www.site.com/home');
 
 ```
 
