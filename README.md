@@ -189,6 +189,26 @@ class WebController
 }
 ```
 
+Esse componente de rotas também fornece uma maneira fácil de utilizar as rotas na camada View. O método route recebe como parametro o nome da rota e caso ela tenha algum parâmetro dinâmico basta informa usando um array chave valor.
+
+```html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <a href="<?= $router->route('web.showUser', ['user' => 1]) ?>">Usando as rotas</a>
+    <!-- retornaria "http://www.site.com/usuarios/1"  -->
+</body>
+</html>
+
+```
+
 ### Requisitos
 
 PHP 8.0 ou superior
