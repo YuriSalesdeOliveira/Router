@@ -123,11 +123,8 @@ $router->post('/contatos', 'WebController:contacts', 'web.contacts');
 O redirecionamento é feito usando o método redirect que recebe o nome da rota, um path ou uma url completa.
 
 ```php
-// Usando o nome da rota
 $router->redirect('web.home');
-// Usando um path (parte que complementará a url base)
-$router->redirect('/home');
-// Usando uma url completa
+$router->redirect('/postagens/tecnologia/55214');
 $router->redirect('http://www.site.com/home');
 
 ```
