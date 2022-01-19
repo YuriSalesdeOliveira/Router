@@ -22,7 +22,7 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$ ./index.php [QSA,NC]
 </IfModule>
 ```
-### Rotas
+### Usando o componente
 
 A classe Router recebe como parâmetro uma instância de Resquest, uma instância de Response e a url base do site.
 
