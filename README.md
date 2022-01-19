@@ -5,8 +5,6 @@ Tive como base o coffeecode/router que é um projeto profissional que uso em out
 no github.
 ## Instalação
 
-Instalação através do composer
-
 ```shell
 composer require yuri-oliveira/router
 ```
