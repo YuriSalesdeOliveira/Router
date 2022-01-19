@@ -22,9 +22,7 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$ ./index.php [QSA,NC]
 </IfModule>
 ```
-### Usando o componente
-
-A classe Router recebe como parâmetro uma instância de Resquest, uma instância de Response e a url base do site.
+### Construtor
 
 ```php
 <?php
@@ -54,16 +52,31 @@ $router = new Router($request, $response, SITE['root']);
 
 ```
 
-Exemplo de rotas usando Controllers
+### Rotas
 
 ```php
+
+// Definindo o namespace dos Controllers
 $router->namespace('YuriOliveira\Router\Controllers')
 
+// Exemplo de rotas simples
 $router->get('/home', 'WebController:home', 'web.home');
 $router->post('/registrar', 'WebController:register', 'web.register');
-```
 
-Exemplo de rotas usando Closure. A classe router se encarrega de passar os dados de $_GET, $_POST e $_FILES para os métodos de rotas GET que possuem parâmetros dinâmicos ou rotas POST que automaticamente precisam dos dados enviados de formulários. Além disso os métodos também recebem uma instância de Response e no caso das Closures os métodos recebem uma instância de Router.
+// Exemplo de rotas com parâmetros dinâmicos
+$router->get('/usuarios/:user', 'WebController:showUser', 'web.showUser');
+$router->post('/usuarios/deletar/:user', 'WebController:deleteUser', 'web.deleteUser');
+
+// Rota dinâmica para receber os erros de requisição
+$router->get('/oops/:errorcode', 'App:error', 'app.error');
+
+// Método que faz a classe trabalhar
+$router->dispatch();
+
+if ($error = $router->error()) { $router->redirect('app.error', ['errorcode' => $error]); }
+
+```
+### Callable
 
 ```php
 $router->get('/', function(Router $router, array $data, ResponseInterface $response){
@@ -87,20 +100,14 @@ $router->post('/registrar', function(Router $router, array $data, ResponseInterf
 }, 'web.register');
 ```
 
-Exemplo de rotas que possuem parâmetros dinâmicos.
+### Grupos
 
-```php
-$router->get('/usuarios/:user', 'WebController:showUser', 'web.showUser');
-$router->post('/usuarios/deletar/:user', 'WebController:deleteUser', 'web.deleteUser');
-```
-
-Definindo grupo de rotas. Os grupos são basicamente prefixos. As rotas criadas depois da
-definição do gropo estarão dentro do grupo até que o grupo mude ou seja setado como null.
+Os grupos são basicamente prefixos. As rotas criadas depois da definição do grupo estarão dentro do grupo até que o grupo mude ou seja setado como null.
 
 ```php
 $router->group('/admin');
 $router->get('/perfil', 'AdminController:adminProfile', 'admin.adminProfile');
-$router->post('/senha/editar', 'AdminController:updatePassword', 'admin.updatePassword');
+$router->post('/relatorio', 'AdminController:report', 'admin.report');
 
 $router->group('/usuarios');
 $router->get('/:user', 'WebController:showUser', 'web.showUser');
@@ -111,30 +118,21 @@ $router->get('/home', 'WebController:home', 'web.home');
 $router->post('/contatos', 'WebController:contacts', 'web.contacts');
 ```
 
-O redirecionamento é feito usando o método redirect que recebe o nome da rota,
-um path ou uma url completa.
+### Redirecionar
+
+O redirecionamento é feito usando o método redirect que recebe o nome da rota, um path ou uma url completa.
 
 ```php
-$router->redirect('web.home',);
+// Usando o nome da rota
+$router->redirect('web.home');
+// Usando um path (parte que complementará a url base)
 $router->redirect('/home');
+// Usando uma url completa
 $router->redirect('http://www.site.com/home');
 
 ```
 
-Agora fazemos a classe trabalhar. Depois de fazermos a classe trabalhar podemos capturar os erros
-e redirecionar o usuário para uma página personalizada quando algum erro for detectado.
-
-```php
-
-$router->get('/oops/:errorcode', 'App:error', 'app.error');
-
-$router->dispatch();
-
-if ($error = $router->error()) { $router->redirect('app.error', ['errorcode' => $error]); }
-
-```
-
-A classe router é automaticamente passada no construtor para o controller, dessa forma pode-se ter acesso a classe router dentro dos controllers. A classe router também se encarrega de passar os dados de $_GET, $_POST e $_FILES para os métodos de rotas GET que possuem parâmetros dinâmicos ou rotas POST que automaticamente precisam dos dados enviados de formulários. Além disso os métodos também recebem uma instância de Response.
+### Controller
 
 ```php
 class WebController
@@ -155,7 +153,7 @@ class WebController
 }
 ```
 
-Trabalhando com a classe Response.
+### Response
 
 ```php
 class WebController
@@ -189,7 +187,7 @@ class WebController
 }
 ```
 
-Esse componente de rotas também fornece uma maneira fácil de utilizar as rotas na camada View. O método route recebe como parametro o nome da rota e caso ela tenha algum parâmetro dinâmico basta informa usando um array chave valor.
+### View
 
 ```html
 
