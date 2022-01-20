@@ -1,6 +1,6 @@
 {
     "name": "yuri-oliveira/router",
-    "description": "Class router para gerenciamento de rotas",
+    "description": "Um simples componente de rotas PHP",
     "minimum-stability": "stable",
     "license": "MIT",
     "authors": [
