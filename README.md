@@ -163,7 +163,7 @@ class WebController
     public function showUsers($data, ResponseInterface $response): void
 
     {
-        // O status da resposta. O status 200 já o padrão
+        // O status da resposta. O status 200 já é o padrão
         $response->setStatusHttp(200);
 
         // Conteúdo a ser enviado como resposta
