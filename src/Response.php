@@ -80,7 +80,7 @@ class Response implements ResponseInterface
         return $this;
     }
 
-    protected function sendHeaders()
+    protected function sendHeaders(): void
     {
         http_response_code($this->status_http);
 
